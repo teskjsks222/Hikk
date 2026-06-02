@@ -1,21 +1,20 @@
-local Player = game:GetService("Players").LocalPlayer
-local PlayerGui = Player:WaitForChild("PlayerGui")
+local CoreGui = game:GetService("CoreGui")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-if PlayerGui:FindFirstChild("StandardSpammer") then
-	PlayerGui.StandardSpammer:Destroy()
+if CoreGui:FindFirstChild("StandardSpammer") then
+	CoreGui.StandardSpammer:Destroy()
 end
 
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "StandardSpammer"
-ScreenGui.Parent = PlayerGui
+ScreenGui.Parent = CoreGui
 ScreenGui.ResetOnSpawn = false
 
 local MainFrame = Instance.new("Frame")
 MainFrame.Parent = ScreenGui
-MainFrame.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-MainFrame.Position = UDim2.new(0.5, -100, 0.5, -100)
-MainFrame.Size = UDim2.new(0, 200, 0, 190)
+MainFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+MainFrame.Position = UDim2.new(0.5, -100, 0.5, -75)
+MainFrame.Size = UDim2.new(0, 200, 0, 140)
 MainFrame.Active = true
 MainFrame.Draggable = true
 
@@ -28,12 +27,47 @@ Title.BackgroundTransparency = 1
 
 local ArgsInput = Instance.new("TextBox")
 ArgsInput.Parent = MainFrame
-ArgsInput.Position = UDim2.new(0.1, 0, 0.2, 0)
+ArgsInput.Position = UDim2.new(0.1, 0, 0.3, 0)
 ArgsInput.Size = UDim2.new(0.8, 0, 0, 30)
 ArgsInput.Text = "Lolly Yellow"
-ArgsInput.PlaceholderText = "Enter Name..."
-ArgsInput.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+ArgsInput.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 ArgsInput.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+local ToggleBtn = Instance.new("TextButton")
+ToggleBtn.Parent = MainFrame
+ToggleBtn.Position = UDim2.new(0.1, 0, 0.65, 0)
+ToggleBtn.Size = UDim2.new(0.8, 0, 0, 35)
+ToggleBtn.Text = "START"
+ToggleBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+ToggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+local active = false
+local remotes = ReplicatedStorage:WaitForChild("RemoteEvents")
+local equip = remotes:WaitForChild("Equip")
+local drop = remotes:WaitForChild("Drop")
+
+ToggleBtn.MouseButton1Click:Connect(function()
+	active = not active
+	if active then
+		ToggleBtn.Text = "STOP"
+		ToggleBtn.BackgroundColor3 = Color3.fromRGB(50, 200, 50)
+		
+		task.spawn(function()
+			while active do
+				local itemName = ArgsInput.Text
+				
+				equip:FireServer(itemName)
+				task.wait(0.1)
+				drop:FireServer(itemName)
+				
+				task.wait(0.2)
+			end
+		end)
+	else
+		ToggleBtn.Text = "START"
+		ToggleBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+	end
+end)
 
 local DelayInput = Instance.new("TextBox")
 DelayInput.Parent = MainFrame
