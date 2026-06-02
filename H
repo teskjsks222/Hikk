@@ -39,7 +39,7 @@ local DelayInput = Instance.new("TextBox")
 DelayInput.Parent = MainFrame
 DelayInput.Position = UDim2.new(0.1, 0, 0.4, 0)
 DelayInput.Size = UDim2.new(0.8, 0, 0, 30)
-DelayInput.Text = "1"
+DelayInput.Text = "0.5"
 DelayInput.PlaceholderText = "Delay (seconds)..."
 DelayInput.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
 DelayInput.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -64,6 +64,20 @@ ToggleBtn.MouseButton1Click:Connect(function()
 		task.spawn(function()
 			while active do
 				local itemName = ArgsInput.Text
+				local delayTime = tonumber(DelayInput.Text) or 0.1
+				
+				EquipRemote:FireServer(itemName)
+				task.wait(0.1) -- Required for the server to recognize the item is in your hand
+				DropRemote:FireServer(itemName)
+				
+				task.wait(delayTime)
+			end
+		end)
+	else
+		ToggleBtn.Text = "Status: OFF"
+		ToggleBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+	end
+end)
 				local delayTime = tonumber(DelayInput.Text) or 0
 				EquipRemote:FireServer(itemName)
 				DropRemote:FireServer(itemName)
