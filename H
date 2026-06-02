@@ -1,0 +1,96 @@
+-- Xeno Support Wrapper
+local CoreGui = game:GetService("CoreGui")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UserInputService = game:GetService("UserInputService")
+
+-- Cleanup existing UI if re-running
+if CoreGui:FindFirstChild("DolaXenoUI") then
+    CoreGui.DolaXenoUI:Destroy()
+end
+
+-- Create GUI
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "DolaXenoUI"
+ScreenGui.Parent = CoreGui
+ScreenGui.ResetOnSpawn = false
+
+local MainFrame = Instance.new("Frame")
+MainFrame.Name = "Main"
+MainFrame.Parent = ScreenGui
+MainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+MainFrame.BorderSizePixel = 0
+MainFrame.Position = UDim2.new(0.5, -100, 0.4, 0)
+MainFrame.Size = UDim2.new(0, 200, 0, 160)
+MainFrame.Active = true
+MainFrame.Draggable = true -- Standard for Xeno/Executors
+
+-- Rounded Corners for Xeno Aesthetic
+local Corner = Instance.new("UICorner")
+Corner.CornerRadius = UDim.new(0, 8)
+Corner.Parent = MainFrame
+
+local Title = Instance.new("TextLabel")
+Title.Parent = MainFrame
+Title.Size = UDim2.new(1, 0, 0, 35)
+Title.Text = "XENO SPAMMER"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.Font = Enum.Font.GothamBold
+Title.BackgroundTransparency = 1
+
+local ArgsInput = Instance.new("TextBox")
+ArgsInput.Parent = MainFrame
+ArgsInput.Position = UDim2.new(0.1, 0, 0.3, 0)
+ArgsInput.Size = UDim2.new(0.8, 0, 0, 35)
+ArgsInput.PlaceholderText = "Item Name..."
+ArgsInput.Text = "Lolly Yellow"
+ArgsInput.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+ArgsInput.TextColor3 = Color3.fromRGB(255, 255, 255)
+ArgsInput.Font = Enum.Font.Gotham
+
+local ToggleBtn = Instance.new("TextButton")
+ToggleBtn.Parent = MainFrame
+ToggleBtn.Position = UDim2.new(0.1, 0, 0.65, 0)
+ToggleBtn.Size = UDim2.new(0.8, 0, 0, 40)
+ToggleBtn.Text = "START"
+ToggleBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 255)
+ToggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+ToggleBtn.Font = Enum.Font.GothamBold
+
+local BtnCorner = Instance.new("UICorner")
+BtnCorner.CornerRadius = UDim.new(0, 6)
+BtnCorner.Parent = ToggleBtn
+
+-- Logic
+local active = false
+local EquipRemote = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("Equip")
+local DropRemote = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("Drop")
+
+ToggleBtn.MouseButton1Click:Connect(function()
+    active = not active
+    if active then
+        ToggleBtn.Text = "STOPPING..."
+        ToggleBtn.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
+        ToggleBtn.Text = "STOP"
+        
+        -- High-speed loop
+        task.spawn(function()
+            while active do
+                local itemName = ArgsInput.Text
+                EquipRemote:FireServer(itemName)
+                DropRemote:FireServer(itemName)
+                -- task.wait() is used to prevent the executor from hanging
+                task.wait() 
+            end
+        end)
+    else
+        ToggleBtn.Text = "START"
+        ToggleBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 255)
+    end
+end)
+
+-- Hide/Show UI with Left Control
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if not gameProcessed and input.KeyCode == Enum.KeyCode.LeftControl then
+        MainFrame.Visible = not MainFrame.Visible
+    end
+end)
