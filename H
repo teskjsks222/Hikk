@@ -1,69 +1,80 @@
--- Xeno Support Wrapper
-local CoreGui = game:GetService("CoreGui")
+local Player = game:GetService("Players").LocalPlayer
+local PlayerGui = Player:WaitForChild("PlayerGui")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local UserInputService = game:GetService("UserInputService")
 
--- Cleanup existing UI if re-running
-if CoreGui:FindFirstChild("DolaXenoUI") then
-    CoreGui.DolaXenoUI:Destroy()
+if PlayerGui:FindFirstChild("StandardSpammer") then
+	PlayerGui.StandardSpammer:Destroy()
 end
 
--- Create GUI
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "DolaXenoUI"
-ScreenGui.Parent = CoreGui
+ScreenGui.Name = "StandardSpammer"
+ScreenGui.Parent = PlayerGui
 ScreenGui.ResetOnSpawn = false
 
 local MainFrame = Instance.new("Frame")
-MainFrame.Name = "Main"
 MainFrame.Parent = ScreenGui
-MainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-MainFrame.BorderSizePixel = 0
-MainFrame.Position = UDim2.new(0.5, -100, 0.4, 0)
-MainFrame.Size = UDim2.new(0, 200, 0, 160)
+MainFrame.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+MainFrame.Position = UDim2.new(0.5, -100, 0.5, -100)
+MainFrame.Size = UDim2.new(0, 200, 0, 190)
 MainFrame.Active = true
-MainFrame.Draggable = true -- Standard for Xeno/Executors
-
--- Rounded Corners for Xeno Aesthetic
-local Corner = Instance.new("UICorner")
-Corner.CornerRadius = UDim.new(0, 8)
-Corner.Parent = MainFrame
+MainFrame.Draggable = true
 
 local Title = Instance.new("TextLabel")
 Title.Parent = MainFrame
-Title.Size = UDim2.new(1, 0, 0, 35)
-Title.Text = "XENO SPAMMER"
+Title.Size = UDim2.new(1, 0, 0, 30)
+Title.Text = "Item Spammer"
 Title.TextColor3 = Color3.fromRGB(255, 255, 255)
-Title.Font = Enum.Font.GothamBold
 Title.BackgroundTransparency = 1
 
 local ArgsInput = Instance.new("TextBox")
 ArgsInput.Parent = MainFrame
-ArgsInput.Position = UDim2.new(0.1, 0, 0.3, 0)
-ArgsInput.Size = UDim2.new(0.8, 0, 0, 35)
-ArgsInput.PlaceholderText = "Item Name..."
+ArgsInput.Position = UDim2.new(0.1, 0, 0.2, 0)
+ArgsInput.Size = UDim2.new(0.8, 0, 0, 30)
 ArgsInput.Text = "Lolly Yellow"
-ArgsInput.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+ArgsInput.PlaceholderText = "Enter Name..."
+ArgsInput.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
 ArgsInput.TextColor3 = Color3.fromRGB(255, 255, 255)
-ArgsInput.Font = Enum.Font.Gotham
+
+local DelayInput = Instance.new("TextBox")
+DelayInput.Parent = MainFrame
+DelayInput.Position = UDim2.new(0.1, 0, 0.4, 0)
+DelayInput.Size = UDim2.new(0.8, 0, 0, 30)
+DelayInput.Text = "1"
+DelayInput.PlaceholderText = "Delay (seconds)..."
+DelayInput.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+DelayInput.TextColor3 = Color3.fromRGB(255, 255, 255)
 
 local ToggleBtn = Instance.new("TextButton")
 ToggleBtn.Parent = MainFrame
 ToggleBtn.Position = UDim2.new(0.1, 0, 0.65, 0)
 ToggleBtn.Size = UDim2.new(0.8, 0, 0, 40)
-ToggleBtn.Text = "START"
-ToggleBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 255)
+ToggleBtn.Text = "Status: OFF"
+ToggleBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
 ToggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-ToggleBtn.Font = Enum.Font.GothamBold
 
-local BtnCorner = Instance.new("UICorner")
-BtnCorner.CornerRadius = UDim.new(0, 6)
-BtnCorner.Parent = ToggleBtn
-
--- Logic
 local active = false
 local EquipRemote = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("Equip")
 local DropRemote = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("Drop")
+
+ToggleBtn.MouseButton1Click:Connect(function()
+	active = not active
+	if active then
+		ToggleBtn.Text = "Status: ON"
+		ToggleBtn.BackgroundColor3 = Color3.fromRGB(50, 200, 50)
+		task.spawn(function()
+			while active do
+				local itemName = ArgsInput.Text
+				local delayTime = tonumber(DelayInput.Text) or 0
+				EquipRemote:FireServer(itemName)
+				DropRemote:FireServer(itemName)
+				task.wait(delayTime)
+			end
+		end)
+	else
+		ToggleBtn.Text = "Status: OFF"
+		ToggleBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+	end
+end)
 
 ToggleBtn.MouseButton1Click:Connect(function()
     active = not active
